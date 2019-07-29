@@ -100,9 +100,15 @@ bluefloat = Filter(crop,supercrop_bluefloat)
 
 """""""printouts:"""""""
 
-print(COM(bluefloat))
-plt.imshow(bluefloat)
-plt.plot()
+print("redCOM: ", COM(redfloat))
+print("yellowCOM: ", COM(yellowfloat))
+print("blueCOM: ", COM(bluefloat))
+
+f, axarr = plt.subplots(2,2)
+axarr[0,0].imshow(crop)
+axarr[0,1].imshow(redfloat)
+axarr[1,0].imshow(yellowfloat)
+axarr[1,1].imshow(bluefloat)
 #print("red", np.average(supercrop_redfloat[:,:,0]))
 #print("green", np.average(supercrop_redfloat[:,:,1]))
 #print("blue", np.average(supercrop_redfloat[:,:,2]))
