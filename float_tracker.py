@@ -12,10 +12,12 @@ from scipy import ndimage
 from skimage import io
 import matplotlib.pyplot as plt
 import cv2
+import glob
+import os
 
 """""""""Functions"""""""""""
 # Function to extract frames 
-def FrameCapture(path): 
+def FrameCapture(path):  
       
     # Path to video file 
     vidObj = cv2.VideoCapture(path) 
@@ -33,13 +35,13 @@ def FrameCapture(path):
         success, image = vidObj.read() 
   
         # Saves the frame
-        cv2.imwrite("/home/miles/Desktop/Python/data/float_tracker/TaichiRGB/frame%d.jpg" % count, image)
+        cv2.imwrite("/home/miles/Desktop/Python/data/float_tracker/lightdiffused/6812_frames/frame%d.jpg" % count, image)
         
         count += 1
 
 #Center of mass function
 def COM(data):
-    com = ndimage.measurements.center_of_mass(data)
+    com = np.array(ndimage.measurements.center_of_mass(data))
     return com
 
 #recombination of red, green, and blue channels
@@ -74,86 +76,106 @@ def ColorSTD(data):
     
     return colorstd
 
-#filter using the full (cropped) image and the supercrop of a specific float
-def Filter(image,supercrop):
-    floatcoloraverage = ColorAverage(supercrop)
-    floatcolorSTD = ColorSTD(supercrop)
-    floatcolorSTD[floatcolorSTD<1]=1 #to keep everything from exploding when the average and std of a channel are 0, which actually happened
+def xSTD(data):
+    std = np.std(data[:,1])
     
+    return std
+
+def RedFilter(image):
     zeros=np.zeros([len(image[:]),len(image[0,:])])
     filtered=zeros
     
-#    redsignal = abs(image[:,:,0]-floatcoloraverage[0]) < floatcolorSTD[0]*redcutoff
-#    greensignal = abs(image[:,:,1]-floatcoloraverage[1]) < floatcolorSTD[1]*greencutoff
-#    bluesignal = abs(image[:,:,2]-floatcoloraverage[2]) < floatcolorSTD[2]*bluecutoff
-    redsignal = abs(image[:,:,0]-floatcoloraverage[0]) < redcutoff
-    greensignal = abs(image[:,:,1]-floatcoloraverage[1]) < greencutoff
-    bluesignal = abs(image[:,:,2]-floatcoloraverage[2]) < bluecutoff
-    fullmatch = np.logical_and(redsignal,greensignal,bluesignal)
+    rgrat = image[:,:,0]/image[:,:,1]
+    rbrat = image[:,:,0]/image[:,:,2]
+    filtered[rgrat>1.5]=1
+    filtered[rbrat<1.5]=0
     
-    filtered[fullmatch]=1
+    return filtered
+
+def GreenFilter(image):
+    zeros=np.zeros([len(image[:]),len(image[0,:])])
+    filtered=zeros
+    
+    grrat = image[:,:,1]/image[:,:,0]
+    gbrat = image[:,:,1]/image[:,:,2]
+    filtered[grrat>1.5]=1
+    filtered[gbrat<1.5]=0
+    
+    return filtered
+
+def BlueFilter(image):
+    zeros=np.zeros([len(image[:]),len(image[0,:])])
+    filtered=zeros
+    
+    brrat = image[:,:,2]/image[:,:,0]
+    bgrat = image[:,:,2]/image[:,:,1]
+    filtered[brrat>1.3]=1
+    filtered[bgrat<1.3]=0
+    
     return filtered
 
 
-
-"""The following will need to be tweaked manually for each analysis. 
-It is crucial that for each video, you do the supercrop around each float to establish the float colors"""
-#read data
-img = io.imread('/home/miles/Desktop/Python/data/float_tracker/TaichiRGB/frame2192.jpg')
-
+"""Frame Generation"""
+#Generate data from video
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
-#out = FrameCapture('/home/miles/Desktop/Python/data/float_tracker/TaichiRGB/400 mm p min.MP4')
+"""CHANGE THE SAVE PATH IN FRAMECAPTURE YOU GOOBER"""
+#out = FrameCapture('/home/miles/Desktop/Python/data/float_tracker/lightdiffused/SAM_6812.MP4')
 
+
+"""Single Frame Testing Ground"""
+#read data
+data_dir=('/home/miles/Desktop/Python/data/float_tracker/lightdiffused/6812_frames/')
+file_list=sorted(glob.glob(data_dir+'*.jpg'), key=os.path.getmtime)
+
+#read single frame to get data type
+img = io.imread(file_list[0])
 
 #crops to remove uneccesary information
-crop = img[300:400,250:1200,:]
+crop = img[320:390,400:900,:]
 
-#divides out the average background
+#divides out the average background, make sure this makes sense
 crop_back = crop/ColorAverage(crop)
 
-#get colors of each float FROM A SINGLE REPRESENTATIVE IMAGE: frame2192
-supercrop_redfloat = crop_back[40:80,850:890,:]
-supercrop_greenfloat = crop_back[38:78,80:120,:]
-supercrop_bluefloat = crop_back[35:75,132:172,:]
-
-#set filter thresholds, each value is the number of 
-#standard deviations from the mean value of each channel of the supercrop of each float
-redcutoff = 0.5
-greencutoff = 0.5
-bluecutoff = 0.1
+#Run each through their filters
+redfloat = RedFilter(crop_back)
+greenfloat = GreenFilter(crop_back)
+bluefloat = BlueFilter(crop_back)
 
 
-"""""""business end"""""""""
+"""""""For loop for all frames"""""""""
 
-redfloat = Filter(crop_back,supercrop_redfloat)
-greenfloat = Filter(crop_back,supercrop_greenfloat)
-bluefloat = Filter(crop_back,supercrop_bluefloat)
+#MASSIVE FOR LOOP FOR EVERY FRAME LET'S GO BABY
+#data directories
+#COM_write_path = ('/home/miles/Desktop/Python/data/float_tracker/lightdiffused/6812_COMs/')
+#MED_write_path = ('/home/miles/Desktop/Python/data/float_tracker/lightdiffused/6812_MEDs/')
+#STD_write_path = ('/home/miles/Desktop/Python/data/float_tracker/lightdiffused/6812_STDs/')
+
+
+#for x in range(0,len(file_list)):
+#    img = io.imread(file_list[x])
+#    crop = img[320:390,400:900,:]
+#    crop_back = crop/ColorAverage(crop)
+#    
+#    redfloat = RedFilter(crop_back)
+#    greenfloat = GreenFilter(crop_back)
+#    bluefloat = BlueFilter(crop_back)
+#    
+#    RGBCOM = np.array([COM(redfloat),COM(greenfloat),COM(bluefloat)])
+#    np.savetxt(COM_write_path+'frame'+str(x)+'.out' ,RGBCOM.astype(int),fmt='%i')
+#    
+
+    
+
 
 """""""printouts:"""""""
-
-print("redCOM: ", COM(redfloat), ColorAverage(supercrop_redfloat), ColorSTD(supercrop_redfloat))
-print("greenCOM: ", COM(greenfloat), ColorAverage(supercrop_greenfloat))
-print("blueCOM: ", COM(bluefloat), ColorAverage(supercrop_bluefloat))
+print((redfloat[40,:]))
+print("Red: ","COM:", COM(redfloat).astype(int), "STD:", xSTD(redfloat))
+print("Green: ","COM:", COM(greenfloat).astype(int))
+print("Blue: ", "COM:",COM(bluefloat).astype(int))
 
 f, axarr = plt.subplots(2,2)
 axarr[0,0].imshow(crop_back)
 axarr[0,1].imshow(redfloat)
 axarr[1,0].imshow(greenfloat)
 axarr[1,1].imshow(bluefloat)
-
-
-
-
-
-#print("red", np.average(supercrop_redfloat[:,:,0]))
-#print("green", np.average(supercrop_redfloat[:,:,1]))
-#print("blue", np.average(supercrop_redfloat[:,:,2]))
-#
-#print("red", np.average(supercrop_yellowfloat[:,:,0]))
-#print("green", np.average(supercrop_yellowfloat[:,:,1]))
-#print("blue", np.average(supercrop_yellowfloat[:,:,2]))
-#
-#print("red", np.average(supercrop_bluefloat[:,:,0]))
-#print("green", np.average(supercrop_bluefloat[:,:,1]))
-#print("blue", np.average(supercrop_bluefloat[:,:,2]))
