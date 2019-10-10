@@ -129,7 +129,7 @@ data_dir=('/home/miles/Desktop/Python/data/float_tracker/lightdiffused/6812_fram
 file_list=sorted(glob.glob(data_dir+'*.jpg'), key=os.path.getmtime)
 
 #read single frame to get data type
-img = io.imread(file_list[0])
+img = io.imread(file_list[2000])
 
 #crops to remove uneccesary information
 crop = img[320:390,400:900,:]
@@ -169,7 +169,6 @@ bluefloat = BlueFilter(crop_back)
 
 
 """""""printouts:"""""""
-print((redfloat[40,:]))
 print("Red: ","COM:", COM(redfloat).astype(int), "STD:", xSTD(redfloat))
 print("Green: ","COM:", COM(greenfloat).astype(int))
 print("Blue: ", "COM:",COM(bluefloat).astype(int))
