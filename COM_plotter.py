@@ -14,13 +14,14 @@ import matplotlib.pyplot as plt
 import cv2
 
 """directories and data info"""
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/foil/COMs/')
-file_list=sorted(glob.glob(data_dir+'*.out'), key=os.path.getmtime)
-img_data_dir=('/home/miles/Desktop/Python/data/float_tracker/foil/frames/')
-img_file_list=sorted(glob.glob(img_data_dir+'*.jpg'), key=os.path.getmtime)
+data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
+file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
+img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
 frame_ratio = 1
 camera_FPS=30
+pixel_ratio=10.3  #pixels/mm
+speed = 35/20 #mm/second
 
 """functions"""
 def ReadCOM(frame_ratio):
@@ -57,45 +58,50 @@ def GenerateAllFramesCheck(frame_ratio):
         plt.scatter(COM[1,1],COM[1,0],color='g')
         plt.scatter(COM[2,1],COM[2,0],color='b')
         
-        plt.savefig('/home/miles/Desktop/Python/data/float_tracker/foil/check/frame'+str(x)+'.png', dpi=500)
+        plt.savefig(data_dir+'check/frame'+str(x)+'.png', dpi=500)
         plt.clf()
 
 def GenerateVideoCheck(FPS):
-    frame_folder = '/home/miles/Desktop/Python/data/float_tracker/foil/check/'
-    
+
     img_array = []
-    for filename in sorted(glob.glob(frame_folder+'*.png'), key=os.path.getmtime):
+    for filename in sorted(glob.glob(data_dir+'check/*.png'), key=os.path.getmtime):
         img = cv2.imread(filename)
         height, width, layers = img.shape
         size = (width,height)
         img_array.append(img)
         
-    out = cv2.VideoWriter('/home/miles/Desktop/Python/data/float_tracker/foil/VideoCheck.avi',cv2.VideoWriter_fourcc(*'DIVX'), FPS, size)
+    out = cv2.VideoWriter(data_dir+'VideoCheck.avi',cv2.VideoWriter_fourcc(*'DIVX'), FPS, size)
      
     for i in range(len(img_array)):
         out.write(img_array[i])
     out.release()
     
 def Plot(COM):
-    plt.title('X-position of floats versus time')
-    plt.ylabel('Time (seconds)')
-    plt.xlabel('X-position (pixels)')
-    plt.ylim(350,-10)
-    plt.xlim(0,700)
-#    plt.scatter(COM[0,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='r',marker='.')
-#    plt.scatter(COM[1,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)), color='g',marker='.')
-#    plt.scatter(COM[2,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='b',marker='.')
-    plt.plot(COM[0,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='r')
-    plt.plot(COM[1,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)), color='g')
-    plt.plot(COM[2,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='b')    
+    plt.title('')
+    plt.ylabel('Z-distance (mm)',fontsize = 24) 
+    plt.xlabel('X-distance (mm)',fontsize = 24)
+    plt.ylim(56*speed,0)
+    plt.yticks(fontsize = 15)
+    plt.xlim(0,45)
+    plt.xticks(fontsize = 15)
+    plt.scatter(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS*speed,frame_ratio/camera_FPS*speed))-31*speed,color='r',marker='.')
+    plt.scatter(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS*speed,frame_ratio/camera_FPS*speed))-31*speed, color='g',marker='.')
+    plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS*speed,frame_ratio/camera_FPS*speed))-31*speed,color='b',marker='.')
+#    plt.plot(COM[0,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='r')
+#    plt.plot(COM[1,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)), color='g')
+#    plt.plot(COM[2,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='b')    
     
-    plt.savefig('/home/miles/Desktop/Python/data/float_tracker/foil/plot.png', dpi=500)
+
+    fig = plt.gcf()
+    fig.set_size_inches(5,10)
+    plt.tight_layout()
+    plt.savefig(data_dir+'paper_fig2D_2.png', dpi=300)
     plt.show()
     
 """"""""""""
 COM = ReadCOM(frame_ratio)
-GenerateAllFramesCheck(frame_ratio)
-GenerateVideoCheck(5)
+#GenerateAllFramesCheck(frame_ratio)
+#GenerateVideoCheck(5)
 Plot(COM)
 #CheckFrame(0,0)
-print(COM[:,:,338])
+#print(COM[:,:,338])

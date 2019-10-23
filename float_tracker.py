@@ -17,8 +17,7 @@ import os
 
 """""""""Functions"""""""""""
 # Function to extract frames 
-def FrameCapture(path):  
-      
+def FrameCapture(path,write):  
     # Path to video file 
     vidObj = cv2.VideoCapture(path) 
     
@@ -35,7 +34,7 @@ def FrameCapture(path):
         success, image = vidObj.read() 
   
         # Saves the frame
-        cv2.imwrite("/home/miles/Desktop/Python/data/float_tracker/foil/frames/frame%d.jpg" % count, image)
+        cv2.imwrite(write+'frames/frame%d.jpg' % count, image)
         
         count += 1
 
@@ -92,8 +91,8 @@ def RedFilter(image):
     
     rgrat = np.divide(image[:,:,0],image[:,:,1])
     rbrat = np.divide(image[:,:,0],image[:,:,2])
-    filtered[rgrat>1.5]=1
-    filtered[rbrat<1.5]=0
+    filtered[rgrat>2]=1
+    filtered[rbrat<2]=0
     
     return filtered
 
@@ -103,8 +102,8 @@ def GreenFilter(image):
     
     grrat = np.divide(image[:,:,1],image[:,:,0])
     gbrat = np.divide(image[:,:,1],image[:,:,2])
-    filtered[grrat>1.5]=1
-    filtered[gbrat<1.5]=0
+    filtered[grrat>2]=1
+    filtered[gbrat<2]=0
     
     return filtered
 
@@ -114,33 +113,34 @@ def BlueFilter(image):
     
     brrat = np.divide(image[:,:,2],image[:,:,0])
     bgrat = np.divide(image[:,:,2],image[:,:,1])
-    filtered[brrat>1.3]=1
-    filtered[bgrat<1.3]=0
+    filtered[brrat>2]=1
+    filtered[bgrat<2]=0
     
     return filtered
 
 
 """Frame Generation"""
+data_dir=('/home/miles/Desktop/Python/data/float_tracker/foil/')
+
 #Generate data from video
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
 """CHANGE THE SAVE PATH IN FRAMECAPTURE YOU GOOBER"""
-#FrameCapture('/home/miles/Desktop/Python/data/float_tracker/foil/SAM_6800.MP4')
+#FrameCapture(data_dir+'SAM_6830.MP4',data_dir)
 
 
 """Single Frame Testing Ground"""
 #read data
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/foil/frames/')
-file_list=sorted(glob.glob(data_dir+'*.jpg'), key=os.path.getmtime)
+file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
 #read single frame to get data type
-img = io.imread(file_list[-100])
+img = io.imread(file_list[2000])
 
 #crops to remove uneccesary information
-crop = img[290:380,400:1150,:]
+crop = img[280:390,400:1150,:]
 xmin = 1
 xmax = 1000
-stdthreshold = 0.05
+stdthreshold = 0.001
 
 #divides out the average background, make sure this makes sense
 crop_back = crop/ColorAverage(crop)
@@ -155,14 +155,14 @@ np.savetxt('test.out',np.array([COM(redfloat,xmin,xmax,stdthreshold),COM(greenfl
 
 #MASSIVE FOR LOOP FOR EVERY FRAME LET'S GO BABY
 #data directories
-COM_write_path = ('/home/miles/Desktop/Python/data/float_tracker/foil/COMs/')
+COM_write_path = (data_dir+'COMs/')
 #MED_write_path = ('/home/miles/Desktop/Python/data/float_tracker/foil/MEDs/')
 #STD_write_path = ('/home/miles/Desktop/Python/data/float_tracker/foil/STDs/')
 
 
 for x in range(0,len(file_list)):
     img = io.imread(file_list[x])
-    crop = img[290:380,400:1150,:]
+    crop = img[280:390,400:1150,:]
     crop_back = crop/ColorAverage(crop)
     
     redfloat = RedFilter(crop_back)
@@ -183,6 +183,8 @@ for x in range(0,len(file_list)):
 print("Red: ","COM:", COM(redfloat,xmin,xmax,stdthreshold))
 print("Green: ","COM:", COM(greenfloat,xmin,xmax,stdthreshold))
 print("Blue: ", "COM:", COM(bluefloat,xmin,xmax,stdthreshold))
+
+plt.imshow(crop)
 
 f, axarr = plt.subplots(2,2)
 axarr[0,0].imshow(crop_back)
