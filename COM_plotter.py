@@ -14,11 +14,11 @@ import matplotlib.pyplot as plt
 import cv2
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
-frame_ratio = 1
+frame_ratio = 10
 camera_FPS=30
 pixel_ratio=10.3  #pixels/mm
 speed = 35/20 #mm/second
@@ -35,7 +35,7 @@ def ReadCOM(frame_ratio):
         
 def CheckFrame(frame,channel):
     img = io.imread(img_file_list[frame])
-    img = img[290:380,400:1150,:] #use same cropping as you did in float_tracker.py!!!
+    img = img[300:380,610:690,:] #use same cropping as you did in float_tracker.py!!!
     
     frame_data = np.loadtxt(file_list[frame])
     COM = frame_data
@@ -45,11 +45,23 @@ def CheckFrame(frame,channel):
     
     plt.show()
     print(COM[channel])
+ 
+def AngleCheck(frame,northpole,southpole):
+    img = io.imread(img_file_list[frame])
+    img = img[300:380,610:690,:] #use same cropping as you did in float_tracker.py!!!
+    frame_data = np.loadtxt(file_list[frame])
+    COM = frame_data
     
-def GenerateAllFramesCheck(frame_ratio):
+    plt.imshow(img)
+    plt.arrow(COM[northpole,1],COM[northpole,0],COM[southpole,1]-COM[northpole,1],COM[southpole,0]-COM[northpole,0],color='yellow',linewidth=5,head_width=2)
+    
+    plt.show()
+
+    
+def GenerateAllFramesCOMCheck(FPS,frame_ratio):
     for x in range(0,int(len(file_list)/frame_ratio)):
         img = io.imread(img_file_list[x*frame_ratio])
-        img = img[290:380,400:1150,:] #use same cropping as you did in float_tracker.py!!!
+        img = img[300:380,610:690,:] #use same cropping as you did in float_tracker.py!!!
         plt.imshow(img)
         
         frame_data = np.loadtxt(file_list[x*frame_ratio])
@@ -60,9 +72,7 @@ def GenerateAllFramesCheck(frame_ratio):
         
         plt.savefig(data_dir+'check/frame'+str(x)+'.png', dpi=500)
         plt.clf()
-
-def GenerateVideoCheck(FPS):
-
+    
     img_array = []
     for filename in sorted(glob.glob(data_dir+'check/*.png'), key=os.path.getmtime):
         img = cv2.imread(filename)
@@ -76,7 +86,50 @@ def GenerateVideoCheck(FPS):
         out.write(img_array[i])
     out.release()
     
-def Plot(COM):
+def GenerateAllFramesAngleCheck(FPS,frame_ratio,northpole,southpole):
+    for x in range(0,int(len(file_list)/frame_ratio)):
+        img = io.imread(img_file_list[x*frame_ratio])
+        img = img[300:380,610:690,:] #use same cropping as you did in float_tracker.py!!!
+        plt.imshow(img)
+        
+        frame_data = np.loadtxt(file_list[x*frame_ratio])
+        COM = frame_data
+        plt.arrow(COM[northpole,1],COM[northpole,0],COM[southpole,1]-COM[northpole,1],COM[southpole,0]-COM[northpole,0],color='yellow',linewidth=5,head_width=2)
+    
+        
+        plt.savefig(data_dir+'check/frame'+str(x)+'.png', dpi=500)
+        plt.clf()
+        
+    img_array = []
+    for filename in sorted(glob.glob(data_dir+'check/*.png'), key=os.path.getmtime):
+        img = cv2.imread(filename)
+        height, width, layers = img.shape
+        size = (width,height)
+        img_array.append(img)
+        
+    out = cv2.VideoWriter(data_dir+'VideoCheck.avi',cv2.VideoWriter_fourcc(*'DIVX'), FPS, size)
+     
+    for i in range(len(img_array)):
+        out.write(img_array[i])
+    out.release()
+        
+        
+#def GenerateVideoCheck(FPS):
+#
+#    img_array = []
+#    for filename in sorted(glob.glob(data_dir+'check/*.png'), key=os.path.getmtime):
+#        img = cv2.imread(filename)
+#        height, width, layers = img.shape
+#        size = (width,height)
+#        img_array.append(img)
+#        
+#    out = cv2.VideoWriter(data_dir+'VideoCheck.avi',cv2.VideoWriter_fourcc(*'DIVX'), FPS, size)
+#     
+#    for i in range(len(img_array)):
+#        out.write(img_array[i])
+#    out.release()
+    
+def Plot1(COM):
     plt.title('')
     plt.ylabel('Z-distance (mm)',fontsize = 24) 
     plt.xlabel('X-distance (mm)',fontsize = 24)
@@ -96,12 +149,15 @@ def Plot(COM):
     fig.set_size_inches(5,10)
     plt.tight_layout()
     plt.savefig(data_dir+'paper_fig2D_2.png', dpi=300)
+    plt.savefig('paper_fig2D_2.png', dpi=300)
     plt.show()
     
+    
 """"""""""""
-COM = ReadCOM(frame_ratio)
-#GenerateAllFramesCheck(frame_ratio)
-#GenerateVideoCheck(5)
-Plot(COM)
+#COM = ReadCOM(frame_ratio)
+#GenerateAllFramesCOMCheck(5,frame_ratio)
+GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
+#Plot1(COM)
 #CheckFrame(0,0)
 #print(COM[:,:,338])
+#AngleCheck(0,0,2)

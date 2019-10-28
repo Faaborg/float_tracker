@@ -91,8 +91,8 @@ def RedFilter(image):
     
     rgrat = np.divide(image[:,:,0],image[:,:,1])
     rbrat = np.divide(image[:,:,0],image[:,:,2])
-    filtered[rgrat>2]=1
-    filtered[rbrat<2]=0
+    filtered[rbrat>1.8]=1
+    filtered[rbrat<1.8]=0
     
     return filtered
 
@@ -114,19 +114,46 @@ def BlueFilter(image):
     brrat = np.divide(image[:,:,2],image[:,:,0])
     bgrat = np.divide(image[:,:,2],image[:,:,1])
     filtered[brrat>2]=1
-    filtered[bgrat<2]=0
+    filtered[brrat<2]=0
     
     return filtered
 
+def AllCOMs():
+    """""""For loop for all frames"""""""""
+
+    #MASSIVE FOR LOOP FOR EVERY FRAME LET'S GO BABY
+    #data directories    
+    for x in range(0,len(file_list)):
+        img = io.imread(file_list[x])
+        crop = img[300:380,610:690,:]
+        crop_back = crop/ColorAverage(crop)
+        redfloat = RedFilter(crop_back)
+        greenfloat = GreenFilter(crop_back)
+        bluefloat = BlueFilter(crop_back)
+        
+        RGBCOM = np.array([COM(redfloat,xmin,xmax,stdthreshold),COM(greenfloat,xmin,xmax,stdthreshold),COM(bluefloat,xmin,xmax,stdthreshold)])
+        
+        np.savetxt(data_dir+'COMs/'+'frame'+str(x)+'.out' ,RGBCOM)
+
+
+"""data directory setup -- EDIT THE DATA_DIR FOR EACH DIFFERENT MOVIE"""
+
+data_dir=('/home/miles/Desktop/Python/data/float_tracker/ratchet/')
+
+
+if not os.path.exists(data_dir+'frames/'):
+     os.makedirs(data_dir+'frames/')
+if not os.path.exists(data_dir+'check/'):
+     os.makedirs(data_dir+'check/')
+if not os.path.exists(data_dir+'COMs/'):
+     os.makedirs(data_dir+'COMs/')
 
 """Frame Generation"""
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/foil/')
-
 #Generate data from video
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
 """CHANGE THE SAVE PATH IN FRAMECAPTURE YOU GOOBER"""
-#FrameCapture(data_dir+'SAM_6830.MP4',data_dir)
+#FrameCapture(data_dir+'SAM_6838.MP4',data_dir)
 
 
 """Single Frame Testing Ground"""
@@ -134,13 +161,13 @@ data_dir=('/home/miles/Desktop/Python/data/float_tracker/foil/')
 file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
 #read single frame to get data type
-img = io.imread(file_list[2000])
+img = io.imread(file_list[3000])
 
 #crops to remove uneccesary information
-crop = img[280:390,400:1150,:]
+crop = img[300:380,610:690,:]
 xmin = 1
 xmax = 1000
-stdthreshold = 0.001
+stdthreshold = 0.0000000000000
 
 #divides out the average background, make sure this makes sense
 crop_back = crop/ColorAverage(crop)
@@ -151,33 +178,10 @@ greenfloat = GreenFilter(crop_back)
 bluefloat = BlueFilter(crop_back)
 
 np.savetxt('test.out',np.array([COM(redfloat,xmin,xmax,stdthreshold),COM(greenfloat,xmin,xmax,stdthreshold),COM(bluefloat,xmin,xmax,stdthreshold)]))
-"""""""For loop for all frames"""""""""
-
-#MASSIVE FOR LOOP FOR EVERY FRAME LET'S GO BABY
-#data directories
-COM_write_path = (data_dir+'COMs/')
-#MED_write_path = ('/home/miles/Desktop/Python/data/float_tracker/foil/MEDs/')
-#STD_write_path = ('/home/miles/Desktop/Python/data/float_tracker/foil/STDs/')
 
 
-for x in range(0,len(file_list)):
-    img = io.imread(file_list[x])
-    crop = img[280:390,400:1150,:]
-    crop_back = crop/ColorAverage(crop)
-    
-    redfloat = RedFilter(crop_back)
-    greenfloat = GreenFilter(crop_back)
-    bluefloat = BlueFilter(crop_back)
-    
-    RGBCOM = np.array([COM(redfloat,xmin,xmax,stdthreshold),COM(greenfloat,xmin,xmax,stdthreshold),COM(bluefloat,xmin,xmax,stdthreshold)])
-    #RGBxSTD = np.array([xSTD(redfloat),xSTD(greenfloat),xSTD(bluefloat)])    
-    
-    np.savetxt(COM_write_path+'frame'+str(x)+'.out' ,RGBCOM)
-    #np.savetxt(STD_write_path+'frame'+str(x)+'.out' , RGBxSTD)
-
-
-    
-
+"""generate all COMs"""
+#AllCOMs()
 
 """""""printouts:"""""""
 print("Red: ","COM:", COM(redfloat,xmin,xmax,stdthreshold))
