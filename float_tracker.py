@@ -3,6 +3,8 @@
 """
 Created on Sun Jul 22 14:49:19 2019
 
+Lasted Edited: 3/6/2020 to pull the y data from the tracking
+
 @author: miles
 """
 
@@ -39,12 +41,16 @@ def FrameCapture(path,write):
         count += 1
 
 #Center of mass function
-def COM(data,xmin,xmax,stdthreshold):
+def COM(data,xmin,xmax,ymin,ymax,stdthreshold):
     com = np.array(ndimage.measurements.center_of_mass(data)).astype(float)
-    std = xSTD(data)   
-    com[std>stdthreshold]=None
+    stdx = xSTD(data) 
+    stdy = ySTD(data)
+    com[stdy>stdthreshold]=None
+    com[stdx>stdthreshold]=None
     com[com<xmin]=None
     com[com>xmax]=None
+    com[com<ymin]=None
+    com[com>ymax]=None
 
     return com
 
@@ -85,11 +91,16 @@ def xSTD(data):
     
     return std
 
+def ySTD(data):
+    std = np.std(data[:,0])
+    
+    return std
+
 def RedFilter(image):
     zeros=np.zeros([len(image[:]),len(image[0,:])])
     filtered=zeros
     
-    rgrat = np.divide(image[:,:,0],image[:,:,1])
+    #rgrat = np.divide(image[:,:,0],image[:,:,1])
     rbrat = np.divide(image[:,:,0],image[:,:,2])
     filtered[rbrat>1.8]=1
     filtered[rbrat<1.8]=0
@@ -112,9 +123,9 @@ def BlueFilter(image):
     filtered=zeros
     
     brrat = np.divide(image[:,:,2],image[:,:,0])
-    bgrat = np.divide(image[:,:,2],image[:,:,1])
-    filtered[brrat>2]=1
-    filtered[brrat<2]=0
+    #bgrat = np.divide(image[:,:,2],image[:,:,1])
+    filtered[brrat>1.2]=1
+    filtered[brrat<1.2]=0
     
     return filtered
 
@@ -125,21 +136,20 @@ def AllCOMs():
     #data directories    
     for x in range(0,len(file_list)):
         img = io.imread(file_list[x])
-        crop = img[300:380,610:690,:]
+        crop = img[350:520,590:750,:]
         crop_back = crop/ColorAverage(crop)
         redfloat = RedFilter(crop_back)
         greenfloat = GreenFilter(crop_back)
         bluefloat = BlueFilter(crop_back)
         
-        RGBCOM = np.array([COM(redfloat,xmin,xmax,stdthreshold),COM(greenfloat,xmin,xmax,stdthreshold),COM(bluefloat,xmin,xmax,stdthreshold)])
+        RGBCOM = np.array([COM(redfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(greenfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(bluefloat,xmin,xmax,ymin,ymax,stdthreshold)])
         
         np.savetxt(data_dir+'COMs/'+'frame'+str(x)+'.out' ,RGBCOM)
 
 
 """data directory setup -- EDIT THE DATA_DIR FOR EACH DIFFERENT MOVIE"""
 
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/ratchet/')
-
+data_dir=('/home/miles/Desktop/Python/data/float_tracker/ratchet3/')
 
 if not os.path.exists(data_dir+'frames/'):
      os.makedirs(data_dir+'frames/')
@@ -153,7 +163,7 @@ if not os.path.exists(data_dir+'COMs/'):
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
 """CHANGE THE SAVE PATH IN FRAMECAPTURE YOU GOOBER"""
-#FrameCapture(data_dir+'SAM_6838.MP4',data_dir)
+#FrameCapture(data_dir+'SAM_6856.MP4',data_dir)
 
 
 """Single Frame Testing Ground"""
@@ -161,12 +171,14 @@ if not os.path.exists(data_dir+'COMs/'):
 file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
 #read single frame to get data type
-img = io.imread(file_list[3000])
+img = io.imread(file_list[1000])
 
 #crops to remove uneccesary information
-crop = img[300:380,610:690,:]
+crop = img[350:520,590:750,:]
 xmin = 1
 xmax = 1000
+ymin = 1
+ymax = 1000
 stdthreshold = 0.0000000000000
 
 #divides out the average background, make sure this makes sense
@@ -177,16 +189,16 @@ redfloat = RedFilter(crop_back)
 greenfloat = GreenFilter(crop_back)
 bluefloat = BlueFilter(crop_back)
 
-np.savetxt('test.out',np.array([COM(redfloat,xmin,xmax,stdthreshold),COM(greenfloat,xmin,xmax,stdthreshold),COM(bluefloat,xmin,xmax,stdthreshold)]))
+np.savetxt('test.out',np.array([COM(redfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(greenfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(bluefloat,xmin,xmax,ymin,ymax,stdthreshold)]))
 
 
 """generate all COMs"""
 #AllCOMs()
 
 """""""printouts:"""""""
-print("Red: ","COM:", COM(redfloat,xmin,xmax,stdthreshold))
-print("Green: ","COM:", COM(greenfloat,xmin,xmax,stdthreshold))
-print("Blue: ", "COM:", COM(bluefloat,xmin,xmax,stdthreshold))
+print("Red: ","COM:", COM(redfloat,xmin,xmax,ymin,ymax,stdthreshold))
+print("Green: ","COM:", COM(greenfloat,xmin,xmax,ymin,ymax,stdthreshold))
+print("Blue: ", "COM:", COM(bluefloat,xmin,xmax,ymin,ymax,stdthreshold))
 
 plt.imshow(crop)
 
