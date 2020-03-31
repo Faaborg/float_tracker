@@ -15,11 +15,12 @@ import os
 from skimage import io
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import Axes3D
 import cv2
 import pandas as pd
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -238,29 +239,37 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     
     
 def Plot3D(COM,tmin,tmax): 
-    ax = plt.axes(projection='3d')
-    plt.ylabel('y')
-    plt.xlabel('x')
-    # plt.ylim(50,60)
-    # plt.xlim(40,60)
+    fig = plt.figure()
+    ax = Axes3D(fig, rect=None, azim=-70, elev=70)
+    
+    plt.ylabel('Y-distance (mm)',fontsize = 14) 
+    plt.xlabel('X-distance (mm)',fontsize = 14)
+    plt.xlim(0,45)
+    plt.ylim(31,76)
     
     zmin = int(tmin/timestep)
     zmax = int(tmax/timestep)
     
     xdata = -(COM[0,1,zmin:zmax].astype(int)/pixel_ratio)+60
     ydata = -(COM[0,0,zmin:zmax].astype(int)/pixel_ratio)+60
-    zdata = (np.arange(0,len(COM[0,0,zmin:zmax])*timestep,timestep))-31*speed
-    ax.scatter3D(xdata,ydata,zdata, color='r', marker='.')
+    zdata = (np.arange(0,len(COM[0,0,zmin:zmax])*timestep,timestep))
+    ax.scatter(xdata,ydata,-zdata, color='r', marker='.')
     
-    # xdata = -(COM[1,1,zmin:zmax].astype(int)/pixel_ratio)+60
-    # ydata = -(COM[1,0,zmin:zmax].astype(int)/pixel_ratio)+60
-    # zdata = (np.arange(0,len(COM[0,0,zmin:zmax])*timestep,timestep))-31*speed
-    # ax.scatter3D(xdata,ydata,zdata, color='g', marker='.')
+    xdata = -(COM[1,1,zmin:zmax].astype(int)/pixel_ratio)+60
+    ydata = -(COM[1,0,zmin:zmax].astype(int)/pixel_ratio)+60
+    zdata = (np.arange(0,len(COM[1,0,zmin:zmax])*timestep,timestep))
+    ax.scatter(xdata,ydata,-zdata, color='g', marker='.')
     
     xdata = -(COM[2,1,zmin:zmax].astype(int)/pixel_ratio)+60
     ydata = -(COM[2,0,zmin:zmax].astype(int)/pixel_ratio)+60
-    zdata = (np.arange(0,len(COM[0,0,zmin:zmax])*timestep,timestep))-31*speed
-    ax.scatter3D(xdata,ydata,zdata, color = 'b', marker='.')
+    zdata = (np.arange(0,len(COM[2,0,zmin:zmax])*timestep,timestep))
+    ax.scatter(xdata,ydata,-zdata, color='b', marker='.')
+    
+    fig.set_size_inches(10,10)
+    plt.tight_layout()
+    plt.savefig(data_dir+'3dtaichi_20ang_70elev.png', dpi=300)
+    plt.show()
+    
 
 
     
@@ -271,7 +280,7 @@ COM = ReadCOM(frame_ratio)
 #Plot(COM)
 #PlotAngle(COM,2,0)
 #PlotAngleDisplacement(COM,0,2)
-Plot3D(COM,100,200)
+Plot3D(COM,31*speed,87*speed)
 #print(Dphi(250,2,0))
 #CheckFrame(0,0)
 #print(COM[:,:,338])
