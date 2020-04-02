@@ -15,16 +15,17 @@ import os
 from skimage import io
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+from stl import mesh
 from mpl_toolkits.mplot3d import Axes3D
 import cv2
 import pandas as pd
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
-frame_ratio = 1
+frame_ratio = 10
 camera_FPS=30
 pixel_ratio=10.3  #pixels/mm
 speed = 35/20 #mm/second
@@ -121,20 +122,20 @@ def GenerateAllFramesAngleCheck(FPS,frame_ratio,northpole,southpole):
     out.release()
         
         
-#def GenerateVideoCheck(FPS):
-#
-#    img_array = []
-#    for filename in sorted(glob.glob(data_dir+'check/*.png'), key=os.path.getmtime):
-#        img = cv2.imread(filename)
-#        height, width, layers = img.shape
-#        size = (width,height)
-#        img_array.append(img)
-#        
-#    out = cv2.VideoWriter(data_dir+'VideoCheck.avi',cv2.VideoWriter_fourcc(*'DIVX'), FPS, size)
-#     
-#    for i in range(len(img_array)):
-#        out.write(img_array[i])
-#    out.release()
+def GenerateVideoCheck(FPS):
+
+    img_array = []
+    for filename in sorted(glob.glob(data_dir+'check/*.png'), key=os.path.getmtime):
+        img = cv2.imread(filename)
+        height, width, layers = img.shape
+        size = (width,height)
+        img_array.append(img)
+        
+    out = cv2.VideoWriter(data_dir+'VideoCheck.avi',cv2.VideoWriter_fourcc(*'DIVX'), FPS, size)
+    
+    for i in range(len(img_array)):
+        out.write(img_array[i])
+    out.release()
     
 def Plot(COM):
     plt.title('')
@@ -177,12 +178,12 @@ def PlotAngle(COM,northpole,southpole):
     plt.show()
     
     
-def Dphi(i,northpole,southpole):
-    phi1 = np.arctan2(COM[southpole,1,i-1]-COM[northpole,1,i-1],COM[southpole,0,i-1]-COM[northpole,0,i-1])
-    phi2 = np.arctan2(COM[southpole,1,i]-COM[northpole,1,i],COM[southpole,0,i]-COM[northpole,0,i])
-    dphi = phi1-phi2
+# def Dphi(COM,i,northpole,southpole):
+#     phi1 = np.arctan2(COM[southpole,1,i-1]-COM[northpole,1,i-1],COM[southpole,0,i-1]-COM[northpole,0,i-1])
+#     phi2 = np.arctan2(COM[southpole,1,i]-COM[northpole,1,i],COM[southpole,0,i]-COM[northpole,0,i])
+#     dphi = phi1-phi2
     
-    return dphi
+#     return dphi
 
 def PlotAngleDisplacement(COM,northpole,southpole):
     """Get the angles, and let it go past 2pi by looking for the jump back to 0 and adding 2pi for each rotation"""
@@ -238,9 +239,9 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     plt.show()
     
     
-def Plot3D(COM,tmin,tmax): 
+def Plot3D(COM,tmin,tmax,Azim,Elev,path,DPI): 
     fig = plt.figure()
-    ax = Axes3D(fig, rect=None, azim=-70, elev=70)
+    ax = Axes3D(fig, rect=None, azim=Azim-90, elev=Elev)
     
     plt.ylabel('Y-distance (mm)',fontsize = 14) 
     plt.xlabel('X-distance (mm)',fontsize = 14)
@@ -264,13 +265,40 @@ def Plot3D(COM,tmin,tmax):
     ydata = -(COM[2,0,zmin:zmax].astype(int)/pixel_ratio)+60
     zdata = (np.arange(0,len(COM[2,0,zmin:zmax])*timestep,timestep))
     ax.scatter(xdata,ydata,-zdata, color='b', marker='.')
+
     
-    fig.set_size_inches(10,10)
+    fig.set_size_inches(10,12)
     plt.tight_layout()
-    plt.savefig(data_dir+'3dtaichi_20ang_70elev.png', dpi=300)
+    plt.savefig(path, dpi=DPI)
+    # plt.show()
+    
+def AnimatePlot3D(COM,tmin,tmax,Elev,azimrange,azimstepsize,DPI):
+    for x in range(0,azimrange,azimstepsize):
+        Plot3D(COM,tmin,tmax,x,Elev,data_dir+'3dSweep/%d.png' % x,DPI)
+    
+    
+def PlotSTL():
+    # Not working fully -- can't figure out how to translate the stl, and it's at weird coordinates
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    
+    plt.ylabel('Y-distance (mm)',fontsize = 14) 
+    plt.xlabel('X-distance (mm)',fontsize = 14)
+    plt.xlim(1000,1200)
+    plt.ylim(0,200)
+
+    # Load the STL files and add the vectors to the plot
+    your_mesh = mesh.Mesh.from_file(data_dir+'Taichi.stl')
+    ax.add_collection3d(mplot3d.art3d.Poly3DCollection(your_mesh.vectors,alpha=0.2))
+
+    # Auto scale to the mesh size
+    scale = your_mesh.points.flatten('K')
+    ax.auto_scale_xyz(scale, scale, scale/10)
+    
+    print(your_mesh)
     plt.show()
     
-
+    
 
     
 """"""""""""
@@ -280,8 +308,11 @@ COM = ReadCOM(frame_ratio)
 #Plot(COM)
 #PlotAngle(COM,2,0)
 #PlotAngleDisplacement(COM,0,2)
-Plot3D(COM,31*speed,87*speed)
+#Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
+#AnimatePlot3D(COM,31*speed,87*speed,20,90,1,100)
+#PlotSTL()
 #print(Dphi(250,2,0))
 #CheckFrame(0,0)
 #print(COM[:,:,338])
 #AngleCheck(0,0,2)
+GenerateVideoCheck(10)
