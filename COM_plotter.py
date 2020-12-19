@@ -194,7 +194,9 @@ def Plot():
     fig = plt.gcf()
     fig.set_size_inches(5,10)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python/data/float_tracker/MartinTaichi/comparison.png', dpi=500)
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/comparison.svg')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/comparison.png')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/comparison.pdf')
     plt.show()
   
 def PlotMartin():
@@ -393,8 +395,8 @@ def PlotSTL():
 COM = ReadCOM(frame_ratio)
 #GenerateAllFramesCOMCheck(5,frame_ratio)
 #GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
-Plot()
-#PlotAngle(COM,2,0)
+# Plot()
+# PlotAngle(COM,2,0)
 #PlotAngleDisplacement(COM,0,2)
 #Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
 #AnimatePlot3D(COM,31*speed,87*speed,20,90,1,100)
