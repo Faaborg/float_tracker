@@ -14,18 +14,21 @@ import glob
 import os
 from skimage import io
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 from mpl_toolkits import mplot3d
 from stl import mesh
 from mpl_toolkits.mplot3d import Axes3D
 import cv2
 import pandas as pd
+import tables
+import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
-frame_ratio = 10
+frame_ratio = 1
 camera_FPS=30
 pixel_ratio=10.3  #pixels/mm
 speed = 35/20 #mm/second
@@ -40,6 +43,15 @@ def ReadCOM(frame_ratio):
         frame_data = np.loadtxt(file_list[x*frame_ratio])
         COM[:,:,x] = frame_data
     return COM
+
+def ReadMartin(xmult,xoff):
+    data = np.loadtxt('/home/miles/Desktop/Python/data/float_tracker/MartinTaichi/taichi_data_for_miles2.txt')
+    data = data*xmult
+    data = data + xoff  
+
+    return data
+
+    
         
 def CheckFrame(frame,channel):
     img = io.imread(img_file_list[frame])
@@ -137,7 +149,40 @@ def GenerateVideoCheck(FPS):
         out.write(img_array[i])
     out.release()
     
-def Plot(COM):
+def Plot():    
+    # plt.subplot(1,2,1)
+    
+    plt.scatter(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r',marker='.')
+    plt.scatter(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g',marker='.')
+    plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b',marker='.')
+    
+    # plt.title('')
+    # plt.ylabel('Z-distance (mm)',fontsize = 24) 
+    # plt.xlabel('X-distance (mm)',fontsize = 24)
+    # plt.ylim(56*speed,0)
+    # plt.yticks(fontsize = 15)
+    # plt.xlim(0,45)
+    # plt.xticks(fontsize = 15)
+
+    
+    # plt.subplot(1,2,2)
+    
+    xmult = -9.9
+    xoff = 26.4
+    ymult = 4
+    yoff = 0
+    
+    martx1 = ReadMartin(xmult,xoff)[:,0]
+    martx2 = ReadMartin(xmult,xoff)[:,2]
+    martx3 = ReadMartin(xmult,xoff)[:,4]
+    # marty1 = ReadMartin(ymult,yoff)[:,1]
+    # marty2 = ReadMartin(ymult,yoff)[:,3]
+    # marty3 = ReadMartin(ymult,yoff)[:,5]
+
+    plt.plot(martx1,np.arange(0,len(martx1)/ymult,1/ymult)+yoff, color='tomato')
+    plt.plot(martx2,np.arange(0,len(martx2)/ymult,1/ymult)+yoff, color='limegreen')
+    plt.plot(martx3,np.arange(0,len(martx3)/ymult,1/ymult)+yoff, color='cornflowerblue')
+    
     plt.title('')
     plt.ylabel('Z-distance (mm)',fontsize = 24) 
     plt.xlabel('X-distance (mm)',fontsize = 24)
@@ -145,21 +190,42 @@ def Plot(COM):
     plt.yticks(fontsize = 15)
     plt.xlim(0,45)
     plt.xticks(fontsize = 15)
-    plt.scatter(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r',marker='.')
-    plt.scatter(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g',marker='.')
-    plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b',marker='.')
-#    plt.plot(COM[0,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='r')
-#    plt.plot(COM[1,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)), color='g')
-#    plt.plot(COM[2,1,:].astype(int),(np.arange(0,len(COM[0,0,:])*frame_ratio/camera_FPS,frame_ratio/camera_FPS)),color='b')    
-    
 
     fig = plt.gcf()
     fig.set_size_inches(5,10)
     plt.tight_layout()
-    plt.savefig(data_dir+'paper_fig2D_2.png', dpi=300)
-    plt.savefig('paper_fig2D_2.png', dpi=300)
+    plt.savefig('/home/miles/Desktop/Python/data/float_tracker/MartinTaichi/comparison.png', dpi=500)
     plt.show()
+  
+def PlotMartin():
+    xmult = -1
+    xoff = 0
+    ymult = 1
+    yoff = 0
+    martx1 = ReadMartin(xmult,xoff)[:,0]
+    martx2 = ReadMartin(xmult,xoff)[:,2]
+    martx3 = ReadMartin(xmult,xoff)[:,4]
+    # marty1 = ReadMartin(ymult,yoff)[:,1]
+    # marty2 = ReadMartin(ymult,yoff)[:,3]
+    # marty3 = ReadMartin(ymult,yoff)[:,5]
+
+    plt.plot(martx1,np.arange(0,len(martx1)/ymult,1/ymult)+yoff)
+    plt.plot(martx2,np.arange(0,len(martx2)/ymult,1/ymult)+yoff)
+    plt.plot(martx3,np.arange(0,len(martx3)/ymult,1/ymult)+yoff)
     
+    plt.title('')
+    plt.ylabel('Z-distance (mm)',fontsize = 24) 
+    plt.xlabel('X-distance (mm)',fontsize = 24)
+    # plt.ylim(56*speed,0)
+    # plt.yticks(fontsize = 15)
+    # plt.xlim(0,45)
+    # plt.xticks(fontsize = 15)
+
+    fig = plt.gcf()
+    fig.set_size_inches(10,10)
+    plt.tight_layout()
+    plt.savefig('/home/miles/Desktop/martinplot.png', dpi=500)
+    plt.show()
     
 def PlotAngle(COM,northpole,southpole):
     
@@ -199,43 +265,65 @@ def PlotAngleDisplacement(COM,northpole,southpole):
 
     """plotting grounds"""
     
-    plt.title('Experiment vs Theory: Both Directions')
-    plt.ylabel('Angular Displacement (radians)',fontsize = 24) 
-    plt.xlabel('Time (seconds)',fontsize = 24)
-    #plt.ylim(-3,3)
+    # plt.title('Experiment vs Theory: Both Directions')
+    # plt.ylabel('Angular Displacement (radians)',fontsize = 12) 
+    # plt.xlabel('Time (seconds)',fontsize = 12)
+    # plt.axis('off')
+    # plt.ylim(-1.5,3.5)
     
+    plt.yticks(np.arange(0,20,math.pi))
+
+    plt.tick_params(
+    axis='both',
+    which='both', 
+    direction = 'in',
+    bottom=True,
+    top=False,
+    labelleft=True,
+    labelbottom=True)
+    
+    plt.axes().xaxis.set_minor_locator(MultipleLocator(10))
+     
+    
+    #full cycles
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep)),phi,s=1)
+    
+    #3 cycles
+    xmin = int(102/timestep)
+    xmax = int(332/timestep)
+    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,phi[xmin:xmax]-phi[xmin],s=4)
 
 #    #ratchet
-#    xmin = int(102/timestep)
-#    xmax = int(145/timestep)
+    # xmin = int(102/timestep)
+    # xmax = int(145/timestep)
 #    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,phi[xmin:xmax]-phi[xmin])
     
     #ratchet vs martin
-    xmin = int(107/timestep)
-    xmax = int(123/timestep)
-    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet")
+    # xmin = int(107/timestep)
+    # xmax = int(123/timestep)
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet",marker='.',s=4)
     
 #    #twist
-#    xmin2 = int(140/timestep)
-#    xmax2 = int(182/timestep)
-#    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep-xmin*timestep,phi[xmin2:xmax2]-phi[xmin2])
+    # xmin2 = int(140/timestep)
+    # xmax2 = int(182/timestep)
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep-xmin*timestep,phi[xmin2:xmax2]-phi[xmin2],s=0.5)
     
     #twist vs martin
-    xmin2 = int(162/timestep)
-    xmax2 = int(178/timestep)
-    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist")
+    # xmin2 = int(162/timestep)
+    # xmax2 = int(178/timestep)
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
 
-    #martin 
-    martindata = pd.read_csv("/home/miles/Desktop/Python/data/float_tracker/Martin/Martin-numerical-results.csv")
-    channeltimeratio = 5
-    plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], marker='o', label="theory: twist")
-    plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], marker='o', label="theory: ratchet")
+    # #martin 
+    # martindata = pd.read_csv("/home/miles/Desktop/Python/data/float_tracker/Martin/Martin-numerical-results.csv")
+    # channeltimeratio = 5
+    # plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
+    # plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
 
-    plt.legend()
+    # plt.legend()
     fig = plt.gcf()
-    fig.set_size_inches(10,10)
+    fig.set_size_inches(4,4)
     plt.tight_layout()
-    plt.savefig(data_dir+'angleplotdisp_exptheorycomparisonboth.png', dpi=300)
+    plt.savefig(data_dir+'/paper/angleplotdisp_3cycles_4x4_s=4_dpi1200.png', dpi=1200)
     plt.show()
     
     
@@ -305,7 +393,7 @@ def PlotSTL():
 COM = ReadCOM(frame_ratio)
 #GenerateAllFramesCOMCheck(5,frame_ratio)
 #GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
-#Plot(COM)
+Plot()
 #PlotAngle(COM,2,0)
 #PlotAngleDisplacement(COM,0,2)
 #Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
@@ -315,4 +403,4 @@ COM = ReadCOM(frame_ratio)
 #CheckFrame(0,0)
 #print(COM[:,:,338])
 #AngleCheck(0,0,2)
-GenerateVideoCheck(10)
+#GenerateVideoCheck(10)
