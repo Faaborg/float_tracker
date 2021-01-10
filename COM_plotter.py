@@ -271,9 +271,9 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     # plt.ylabel('Angular Displacement (radians)',fontsize = 12) 
     # plt.xlabel('Time (seconds)',fontsize = 12)
     # plt.axis('off')
-    # plt.ylim(-1.5,3.5)
+
     
-    plt.yticks(np.arange(0,20,math.pi))
+    plt.yticks(np.arange(-2*math.pi,2*math.pi,math.pi/4))
 
     plt.tick_params(
     axis='both',
@@ -301,9 +301,9 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     #plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,phi[xmin:xmax]-phi[xmin])
     
     #ratchet vs martin
-    # xmin = int(107/timestep)
-    # xmax = int(123/timestep)
-    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet",marker='.',s=4)
+    xmin = int(107/timestep)
+    xmax = int(123/timestep)
+    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet",marker='.',s=4)
     
     #twist
     # xmin2 = int(140/timestep)
@@ -311,23 +311,26 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep-xmin*timestep,phi[xmin2:xmax2]-phi[xmin2],s=0.5)
     
     #twist vs martin
-    xmin2 = int(162/timestep)
-    xmax2 = int(178/timestep)
-    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
+    # xmin2 = int(162/timestep)
+    # xmax2 = int(178/timestep)
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
 
     # #martin 
     martindata = pd.read_csv("/home/miles/Desktop/Python/data/float_tracker/Martin/Martin-numerical-results.csv")
     channeltimeratio = 5
-    plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
-    # plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
+    # plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
+    plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
+    
+    
+    plt.ylim(-1.7,1.7)
 
     # plt.legend()
     fig = plt.gcf()
     fig.set_size_inches(4,4)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/twistvsmartin.png')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/twistvsmartin.svg')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/twistvsmartin.pdf')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/ratchetvsmartin.png')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/ratchetvsmartin.svg')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/ratchetvsmartin.pdf')
     plt.show()
     
     
