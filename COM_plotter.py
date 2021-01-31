@@ -24,7 +24,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -39,7 +39,7 @@ def ReadCOM(frame_ratio):
     
     COM = np.zeros([3,2,int(len(file_list)/frame_ratio)])
 
-    for x in range(0,int(len(file_list)/frame_ratio)):
+    for x in range(935,int(len(file_list)/frame_ratio)-7610):
         frame_data = np.loadtxt(file_list[x*frame_ratio])
         COM[:,:,x] = frame_data
     return COM
@@ -311,26 +311,26 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep-xmin*timestep,phi[xmin2:xmax2]-phi[xmin2],s=0.5)
     
     #twist vs martin
-    # xmin2 = int(162/timestep)
-    # xmax2 = int(178/timestep)
-    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
+    xmin2 = int(162/timestep)
+    xmax2 = int(178/timestep)
+    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
 
     # #martin 
     martindata = pd.read_csv("/home/miles/Desktop/Python/data/float_tracker/Martin/Martin-numerical-results.csv")
     channeltimeratio = 5
-    # plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
+    plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
     plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
     
     
-    plt.ylim(-1.7,1.7)
+    # plt.ylim(-1.7,1.7)
 
-    # plt.legend()
+    plt.legend()
     fig = plt.gcf()
     fig.set_size_inches(4,4)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/ratchetvsmartin.png')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/ratchetvsmartin.svg')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/ratchetvsmartin.pdf')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/bothvsmartin.png')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/bothvsmartin.svg')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/bothvsmartin.pdf')
     plt.show()
     
     
@@ -400,7 +400,7 @@ def PlotSTL():
 COM = ReadCOM(frame_ratio)
 #GenerateAllFramesCOMCheck(5,frame_ratio)
 #GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
-# Plot()
+Plot()
 # PlotAngle(COM,2,0)
 #PlotAngleDisplacement(COM,0,2)
 #Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
