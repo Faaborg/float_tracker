@@ -24,7 +24,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -35,11 +35,11 @@ speed = 35/20 #mm/second
 timestep = frame_ratio/camera_FPS*speed
 
 """functions"""
-def ReadCOM(frame_ratio):
+def ReadCOM(frame_ratio,frontcut,backcut):
     
     COM = np.zeros([3,2,int(len(file_list)/frame_ratio)])
 
-    for x in range(935,int(len(file_list)/frame_ratio)-7610):
+    for x in range(frontcut,int(len(file_list)/frame_ratio)-backcut):
         frame_data = np.loadtxt(file_list[x*frame_ratio])
         COM[:,:,x] = frame_data
     return COM
@@ -303,7 +303,8 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     #ratchet vs martin
     xmin = int(107/timestep)
     xmax = int(123/timestep)
-    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet",marker='.',s=4)
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet",marker='.',s=4)
+    plt.plot((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet")
     
     #twist
     # xmin2 = int(140/timestep)
@@ -313,14 +314,16 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     #twist vs martin
     xmin2 = int(162/timestep)
     xmax2 = int(178/timestep)
-    plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
-
+    # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist",marker='.',s=4)
+    plt.plot((np.arange(0,len(phi)*timestep,timestep))[xmin2:xmax2]-xmin2*timestep,phi[xmin2:xmax2]-phi[xmin2], label="experiment: twist")
+    
     # #martin 
     martindata = pd.read_csv("/home/miles/Desktop/Python/data/float_tracker/Martin/Martin-numerical-results.csv")
     channeltimeratio = 5
-    plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
-    plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
-    
+    # plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
+    # plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
+    plt.plot(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist")
+    plt.plot(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet")
     
     # plt.ylim(-1.7,1.7)
 
@@ -328,9 +331,9 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     fig = plt.gcf()
     fig.set_size_inches(4,4)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/bothvsmartin.png')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/bothvsmartin.svg')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/bothvsmartin.pdf')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEbothvsmartin.png')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEbothvsmartin.svg')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEbothvsmartin.pdf')
     plt.show()
     
     
@@ -397,12 +400,12 @@ def PlotSTL():
 
     
 """"""""""""
-COM = ReadCOM(frame_ratio)
+COM = ReadCOM(frame_ratio,0,0)
 #GenerateAllFramesCOMCheck(5,frame_ratio)
 #GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
-Plot()
+#Plot()
 # PlotAngle(COM,2,0)
-#PlotAngleDisplacement(COM,0,2)
+PlotAngleDisplacement(COM,0,2)
 #Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
 #AnimatePlot3D(COM,31*speed,87*speed,20,90,1,100)
 #PlotSTL()
