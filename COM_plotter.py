@@ -24,7 +24,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -152,10 +152,13 @@ def GenerateVideoCheck(FPS):
 def Plot():    
     # plt.subplot(1,2,1)
     
-    plt.scatter(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r',marker='.')
-    plt.scatter(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g',marker='.')
-    plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b',marker='.')
-    
+    # plt.scatter(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r',marker='.')
+    # plt.scatter(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g',marker='.')
+    # plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b',marker='.')
+    plt.plot(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r')
+    plt.plot(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g')
+    plt.plot(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b')
+
     # plt.title('')
     # plt.ylabel('Z-distance (mm)',fontsize = 24) 
     # plt.xlabel('X-distance (mm)',fontsize = 24)
@@ -194,9 +197,9 @@ def Plot():
     fig = plt.gcf()
     fig.set_size_inches(5,10)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/comparison.svg')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/comparison.png')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/comparison.pdf')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.svg')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.png')
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.pdf')
     plt.show()
   
 def PlotMartin():
@@ -404,9 +407,9 @@ def PlotSTL():
 COM = ReadCOM(frame_ratio,0,0)
 #GenerateAllFramesCOMCheck(5,frame_ratio)
 #GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
-#Plot()
+Plot()
 # PlotAngle(COM,2,0)
-PlotAngleDisplacement(COM,0,2)
+#PlotAngleDisplacement(COM,0,2)
 #Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
 #AnimatePlot3D(COM,31*speed,87*speed,20,90,1,100)
 #PlotSTL()
