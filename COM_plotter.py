@@ -323,7 +323,8 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     # plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
     # plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
     plt.plot(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist")
-    plt.plot(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet")
+    plt.plot(martindata["x"][0:34]*channeltimeratio,martindata["ratcheting"][0:34], color='r', label="theory: ratchet")
+    plt.plot(martindata["x"][35:60]*channeltimeratio,martindata["ratcheting"][35:60], color='r')
     
     # plt.ylim(-1.7,1.7)
 
