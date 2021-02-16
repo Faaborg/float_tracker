@@ -19,7 +19,8 @@ Then, manually put the COM cuts and rotation angle in the AllCOM function and ru
 #Import
 import numpy as np
 from scipy import ndimage
-import skimage
+import skimage.transform
+from skimage import io
 import matplotlib.pyplot as plt
 import cv2
 import glob
@@ -134,7 +135,7 @@ def AllCOMs():
     #MASSIVE FOR LOOP FOR EVERY FRAME LET'S GO BABY
     #data directories    
     for x in range(0,len(file_list)):
-        img = skimage.io.imread(file_list[x])
+        img = io.imread(file_list[x])
         rotated = skimage.img_as_ubyte(skimage.transform.rotate(img,-2))
         crop = rotated[190:500,400:900,:]
         crop_back = crop/ColorAverage(crop)
@@ -145,11 +146,18 @@ def AllCOMs():
         RGBCOM = np.array([COM(redfloat),COM(greenfloat),COM(bluefloat)])
         
         np.savetxt(data_dir+'COMs/'+'frame'+str(x)+'.out' ,RGBCOM)
+        
+    #Now also make a single file with all of them:
+    with open(data_dir+'fullCOMs','w') as outfile:
+        for fname in file_list:
+            with open(fname) as infile:
+                for line in infile:
+                    outfile.write(line)
 
 
 """data directory setup -- EDIT THE DATA_DIR FOR EACH DIFFERENT MOVIE"""
 
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/switch/exit/')
+data_dir=('/home/miles/Desktop/Python/data/float_tracker/switch/cycle/')
 
 if not os.path.exists(data_dir+'frames/'):
      os.makedirs(data_dir+'frames/')
@@ -163,7 +171,7 @@ if not os.path.exists(data_dir+'COMs/'):
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
 """CHANGE THE SAVE PATH YOU GOOBER"""
-#FrameCapture(data_dir+'exit.MP4',data_dir)
+#FrameCapture(data_dir+'cycle.MP4',data_dir)
 
 
 """Single Frame Testing Ground"""
@@ -171,7 +179,7 @@ if not os.path.exists(data_dir+'COMs/'):
 file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
 #read single frame to get data type
-img = skimage.io.imread(file_list[1000])
+img = io.imread(file_list[500])
 
 #rotate to line up the axis of the device with the axis of the image
 rotated = skimage.img_as_ubyte(skimage.transform.rotate(img,-2))

@@ -24,7 +24,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/switch/exit/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/switch/cycle/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -203,9 +203,10 @@ def Plot():
     fig = plt.gcf()
     fig.set_size_inches(5,10)
     plt.tight_layout()
-    # plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.svg')
-    # plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.png')
-    # plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.pdf')
+    name = "SCATcycle"
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/{}.svg'.format(name))
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/{}.png'.format(name))
+    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/{}.pdf'.format(name))
     plt.show()
   
 def PlotMartin():
