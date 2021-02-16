@@ -146,13 +146,6 @@ def AllCOMs():
         RGBCOM = np.array([COM(redfloat),COM(greenfloat),COM(bluefloat)])
         
         np.savetxt(data_dir+'COMs/'+'frame'+str(x)+'.out' ,RGBCOM)
-        
-    #Now also make a single file with all of them:
-    with open(data_dir+'fullCOMs','w') as outfile:
-        for fname in file_list:
-            with open(fname) as infile:
-                for line in infile:
-                    outfile.write(line)
 
 
 """data directory setup -- EDIT THE DATA_DIR FOR EACH DIFFERENT MOVIE"""
