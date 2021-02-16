@@ -6,12 +6,20 @@ Created on Sun Jul 22 14:49:19 2019
 Lasted Edited: 3/6/2020 to pull the y data from the tracking
 
 @author: miles
+
+
+
+
+The basic workflow of this notebook is to choose a video and generate the images.
+Then, play with the cropping, color filters, and rotation in the "Single Frame Testing Ground"
+Once the settings look good for a single frame, check how it looks on other frames.
+Then, manually put the COM cuts and rotation angle in the AllCOM function and run!
 """
 
 #Import
 import numpy as np
 from scipy import ndimage
-from skimage import io
+import skimage
 import matplotlib.pyplot as plt
 import cv2
 import glob
@@ -41,17 +49,8 @@ def FrameCapture(path,write):
         count += 1
 
 #Center of mass function
-def COM(data,xmin,xmax,ymin,ymax,stdthreshold):
+def COM(data):
     com = np.array(ndimage.measurements.center_of_mass(data)).astype(float)
-    stdx = xSTD(data) 
-    stdy = ySTD(data)
-    com[stdy>stdthreshold]=None
-    com[stdx>stdthreshold]=None
-    com[com<xmin]=None
-    com[com>xmax]=None
-    com[com<ymin]=None
-    com[com>ymax]=None
-
     return com
 
 #recombination of red, green, and blue channels
@@ -135,21 +134,22 @@ def AllCOMs():
     #MASSIVE FOR LOOP FOR EVERY FRAME LET'S GO BABY
     #data directories    
     for x in range(0,len(file_list)):
-        img = io.imread(file_list[x])
-        crop = img[350:520,590:750,:]
+        img = skimage.io.imread(file_list[x])
+        rotated = skimage.img_as_ubyte(skimage.transform.rotate(img,-2))
+        crop = rotated[190:500,400:900,:]
         crop_back = crop/ColorAverage(crop)
         redfloat = RedFilter(crop_back)
         greenfloat = GreenFilter(crop_back)
         bluefloat = BlueFilter(crop_back)
         
-        RGBCOM = np.array([COM(redfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(greenfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(bluefloat,xmin,xmax,ymin,ymax,stdthreshold)])
+        RGBCOM = np.array([COM(redfloat),COM(greenfloat),COM(bluefloat)])
         
         np.savetxt(data_dir+'COMs/'+'frame'+str(x)+'.out' ,RGBCOM)
 
 
 """data directory setup -- EDIT THE DATA_DIR FOR EACH DIFFERENT MOVIE"""
 
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/ratchet3/')
+data_dir=('/home/miles/Desktop/Python/data/float_tracker/switch/exit/')
 
 if not os.path.exists(data_dir+'frames/'):
      os.makedirs(data_dir+'frames/')
@@ -162,8 +162,8 @@ if not os.path.exists(data_dir+'COMs/'):
 #Generate data from video
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
-"""CHANGE THE SAVE PATH IN FRAMECAPTURE YOU GOOBER"""
-#FrameCapture(data_dir+'SAM_6856.MP4',data_dir)
+"""CHANGE THE SAVE PATH YOU GOOBER"""
+#FrameCapture(data_dir+'exit.MP4',data_dir)
 
 
 """Single Frame Testing Ground"""
@@ -171,15 +171,13 @@ if not os.path.exists(data_dir+'COMs/'):
 file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
 #read single frame to get data type
-img = io.imread(file_list[1000])
+img = skimage.io.imread(file_list[1000])
+
+#rotate to line up the axis of the device with the axis of the image
+rotated = skimage.img_as_ubyte(skimage.transform.rotate(img,-2))
 
 #crops to remove uneccesary information
-crop = img[350:520,590:750,:]
-xmin = 1
-xmax = 1000
-ymin = 1
-ymax = 1000
-stdthreshold = 0.0000000000000
+crop = rotated[190:500,400:900,:]
 
 #divides out the average background, make sure this makes sense
 crop_back = crop/ColorAverage(crop)
@@ -189,16 +187,17 @@ redfloat = RedFilter(crop_back)
 greenfloat = GreenFilter(crop_back)
 bluefloat = BlueFilter(crop_back)
 
-np.savetxt('test.out',np.array([COM(redfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(greenfloat,xmin,xmax,ymin,ymax,stdthreshold),COM(bluefloat,xmin,xmax,ymin,ymax,stdthreshold)]))
+np.savetxt('test.out',np.array([COM(redfloat),COM(greenfloat),COM(bluefloat)]))
 
 
 """generate all COMs"""
 #AllCOMs()
 
 """""""printouts:"""""""
-print("Red: ","COM:", COM(redfloat,xmin,xmax,ymin,ymax,stdthreshold))
-print("Green: ","COM:", COM(greenfloat,xmin,xmax,ymin,ymax,stdthreshold))
-print("Blue: ", "COM:", COM(bluefloat,xmin,xmax,ymin,ymax,stdthreshold))
+print("Red: ","COM:", COM(redfloat))
+print("Green: ","COM:", COM(greenfloat))
+print("Blue: ", "COM:", COM(bluefloat))
+print("background color:", ColorAverage(crop))
 
 plt.imshow(crop)
 

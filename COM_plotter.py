@@ -24,7 +24,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/foil/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/switch/exit/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -154,10 +154,16 @@ def Plot():
     
     # plt.scatter(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r',marker='.')
     # plt.scatter(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g',marker='.')
-    # plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b',marker='.')
-    plt.plot(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r')
-    plt.plot(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g')
-    plt.plot(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b')
+    plt.scatter(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b',marker='.')
+    
+    """filter outliers for line plot"""
+    
+    
+    # plt.plot(-(COM[0,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='r')
+    # plt.plot(-(COM[1,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed, color='g')
+    # plt.plot(-(COM[2,1,:].astype(int)/pixel_ratio)+60,(np.arange(0,len(COM[0,0,:])*timestep,timestep))-31*speed,color='b')
+
+    
 
     # plt.title('')
     # plt.ylabel('Z-distance (mm)',fontsize = 24) 
@@ -170,36 +176,36 @@ def Plot():
     
     # plt.subplot(1,2,2)
     
-    xmult = -9.9
-    xoff = 26.4
-    ymult = 4
-    yoff = 0
+    # xmult = -9.9
+    # xoff = 26.4
+    # ymult = 4
+    # yoff = 0
     
-    martx1 = ReadMartin(xmult,xoff)[:,0]
-    martx2 = ReadMartin(xmult,xoff)[:,2]
-    martx3 = ReadMartin(xmult,xoff)[:,4]
+    # martx1 = ReadMartin(xmult,xoff)[:,0]
+    # martx2 = ReadMartin(xmult,xoff)[:,2]
+    # martx3 = ReadMartin(xmult,xoff)[:,4]
     # marty1 = ReadMartin(ymult,yoff)[:,1]
     # marty2 = ReadMartin(ymult,yoff)[:,3]
     # marty3 = ReadMartin(ymult,yoff)[:,5]
 
-    plt.plot(martx1,np.arange(0,len(martx1)/ymult,1/ymult)+yoff, color='tomato')
-    plt.plot(martx2,np.arange(0,len(martx2)/ymult,1/ymult)+yoff, color='limegreen')
-    plt.plot(martx3,np.arange(0,len(martx3)/ymult,1/ymult)+yoff, color='cornflowerblue')
+    # plt.plot(martx1,np.arange(0,len(martx1)/ymult,1/ymult)+yoff, color='tomato')
+    # plt.plot(martx2,np.arange(0,len(martx2)/ymult,1/ymult)+yoff, color='limegreen')
+    # plt.plot(martx3,np.arange(0,len(martx3)/ymult,1/ymult)+yoff, color='cornflowerblue')
     
-    plt.title('')
-    plt.ylabel('Z-distance (mm)',fontsize = 24) 
-    plt.xlabel('X-distance (mm)',fontsize = 24)
-    plt.ylim(56*speed,0)
-    plt.yticks(fontsize = 15)
-    plt.xlim(0,45)
-    plt.xticks(fontsize = 15)
+    # plt.title('')
+    # plt.ylabel('Z-distance (mm)',fontsize = 24) 
+    # plt.xlabel('X-distance (mm)',fontsize = 24)
+    # plt.ylim(56*speed,0)
+    # plt.yticks(fontsize = 15)
+    # plt.xlim(0,100)
+    # plt.xticks(fontsize = 15)
 
     fig = plt.gcf()
     fig.set_size_inches(5,10)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.svg')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.png')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.pdf')
+    # plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.svg')
+    # plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.png')
+    # plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEcomparison.pdf')
     plt.show()
   
 def PlotMartin():
