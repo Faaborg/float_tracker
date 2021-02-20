@@ -14,6 +14,7 @@ import glob
 import os
 from skimage import io
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from matplotlib.ticker import MultipleLocator
 from mpl_toolkits import mplot3d
 from stl import mesh
@@ -24,7 +25,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/switch/cycle/'
+data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
@@ -204,9 +205,9 @@ def Plot():
     fig.set_size_inches(5,10)
     plt.tight_layout()
     name = "SCATcycle"
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/{}.svg'.format(name))
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/{}.png'.format(name))
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/{}.pdf'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.svg'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.png'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.pdf'.format(name))
     plt.show()
   
 def PlotMartin():
@@ -277,7 +278,7 @@ def PlotAngleDisplacement(COM,northpole,southpole):
 
     """plotting grounds"""
     
-    # plt.title('Experiment vs Theory: Both Directions')
+    # plt.title('Experiment vs Theory: Ratchet')
     # plt.ylabel('Angular Displacement (radians)',fontsize = 12) 
     # plt.xlabel('Time (seconds)',fontsize = 12)
     # plt.axis('off')
@@ -311,10 +312,10 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     #plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,phi[xmin:xmax]-phi[xmin])
     
     #ratchet vs martin
-    xmin = int(107/timestep)
-    xmax = int(123/timestep)
+    # xmin = int(107/timestep)
+    # xmax = int(123/timestep)
     # plt.scatter((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet",marker='.',s=4)
-    plt.plot((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet")
+    # plt.plot((np.arange(0,len(phi)*timestep,timestep))[xmin:xmax]-xmin*timestep,-1*phi[xmin:xmax]+phi[xmin], label="experiment: ratchet")
     
     #twist
     # xmin2 = int(140/timestep)
@@ -332,19 +333,28 @@ def PlotAngleDisplacement(COM,northpole,southpole):
     channeltimeratio = 5
     # plt.scatter(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist",marker='.',s=4)
     # plt.scatter(martindata["x"]*channeltimeratio,martindata["ratcheting"], label="theory: ratchet",marker='.',s=4)
-    plt.plot(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist")
-    plt.plot(martindata["x"][0:34]*channeltimeratio,martindata["ratcheting"][0:34], color='r', label="theory: ratchet")
-    plt.plot(martindata["x"][35:60]*channeltimeratio,martindata["ratcheting"][35:60], color='r')
+    plt.plot(martindata["x"]*channeltimeratio,martindata["rotating"], label="theory: twist", color='r')
+    # plt.plot(martindata["x"][0:34]*channeltimeratio,martindata["ratcheting"][0:34], color='r', label="theory: ratchet")
+    # plt.plot(martindata["x"][35:60]*channeltimeratio,martindata["ratcheting"][35:60], color='r')
+    
+    #landscape
+    # landRatchet = np.loadtxt('/home/miles/Desktop/Python/data/float_tracker/MartinLandscape/ratcheting_landscape_forMiles.txt')
+    # plt.imshow(landRatchet)
+    # landCycle = np.loadtxt('/home/miles/Desktop/Python/data/float_tracker/MartinLandscape/rotating_landscape_forMiles.txt')
+
     
     # plt.ylim(-1.7,1.7)
 
-    plt.legend()
+    plt.legend(loc='upper right')
     fig = plt.gcf()
     fig.set_size_inches(4,4)
+    # ax = fig.add_subplot(111)
+    # ax.set_aspect(1)
     plt.tight_layout()
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEbothvsmartin.png')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEbothvsmartin.svg')
-    plt.savefig('/home/miles/Desktop/Python//float_tracker/plots/LINEbothvsmartin.pdf')
+    name = "LINEtwistvsmartin"
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.svg'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.png'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.pdf'.format(name))
     plt.show()
     
     
@@ -407,14 +417,32 @@ def PlotSTL():
     print(your_mesh)
     plt.show()
     
+   
+def Landscape():
+    landRatchet = np.loadtxt('/home/miles/Desktop/Python/data/float_tracker/MartinLandscape/ratcheting_landscape_forMiles.txt')
+    # landCycle = np.loadtxt('/home/miles/Desktop/Python/data/float_tracker/MartinLandscape/rotating_landscape_forMiles.txt')
+    # f, axarr = plt.subplots(2,1)
+    # axarr[0].imshow(landRatchet)
+    # axarr[0].title.set_text('Ratchet')
+    # axarr[1].imshow(landCycle)  
+    # axarr[1].title.set_text('Cycle')
+    plt.imshow(landRatchet, aspect='equal', origin='lower', cmap='gray')
     
+    fig = plt.gcf()
+    fig.set_size_inches(4,4)
+    plt.tight_layout()
+    name = "landscapeRatchet"
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.svg'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.png'.format(name))
+    plt.savefig('/home/miles/Desktop/Python/float_tracker/plots/{}.pdf'.format(name))
 
-    
+
+
 """"""""""""
 COM = ReadCOM(frame_ratio,0,0)
 #GenerateAllFramesCOMCheck(5,frame_ratio)
 #GenerateAllFramesAngleCheck(5,frame_ratio,0,2)
-Plot()
+#Plot()
 # PlotAngle(COM,2,0)
 #PlotAngleDisplacement(COM,0,2)
 #Plot3D(COM,31*speed,87*speed,20,20,data_dir+'3dtaichi_20ang_20elev.png',300)
