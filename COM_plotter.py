@@ -25,7 +25,7 @@ import tables
 import math
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/ratchet3/'
+data_dir='switch/cycle/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 img_file_list=sorted(glob.glob(data_dir+'frames/*.jpg'), key=os.path.getmtime)
 
