@@ -43,9 +43,10 @@ def FrameCapture(path,write):
         # vidObj object calls read 
         # function extract frames 
         success, image = vidObj.read() 
-  
+        
         # Saves the frame
-        cv2.imwrite(write+'frames/frame%d.jpg' % count, image)
+        if success == True:
+            cv2.imwrite(write+'frames/frame%d.jpg' % count, image)
         
         count += 1
 
@@ -150,7 +151,7 @@ def AllCOMs():
 
 """data directory setup -- EDIT THE DATA_DIR FOR EACH DIFFERENT MOVIE"""
 
-data_dir=('/home/miles/Desktop/Python/data/float_tracker/switch/cycle/')
+data_dir=('switch/cycle/')
 
 if not os.path.exists(data_dir+'frames/'):
      os.makedirs(data_dir+'frames/')
@@ -163,8 +164,8 @@ if not os.path.exists(data_dir+'COMs/'):
 #Generate data from video
 #This will take the chosen video and save jpg's of each and every frame. 
 #Don't run this if you don't want thousands of pictures showing up in your data folder
-"""CHANGE THE SAVE PATH YOU GOOBER"""
-#FrameCapture(data_dir+'cycle.MP4',data_dir)
+"""CHANGE THE SAVE PATH"""
+FrameCapture(data_dir+'switch_cycle_SAM_6932.MP4',data_dir)
 
 
 """Single Frame Testing Ground"""
@@ -192,7 +193,7 @@ np.savetxt('test.out',np.array([COM(redfloat),COM(greenfloat),COM(bluefloat)]))
 
 
 """generate all COMs"""
-#AllCOMs()
+AllCOMs()
 
 """""""printouts:"""""""
 print("Red: ","COM:", COM(redfloat))
