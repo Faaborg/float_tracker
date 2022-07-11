@@ -3,13 +3,16 @@
 """
 Created on Tue Feb 16 14:43:47 2021
 
+For plotting: COM data structure is [RGB,YX,FRAME], so if you want the X coordinate of the 
+red float on the 69th frame, you type COM[0,1,69]
+
 @author: miles
 """
 import glob
 import os
 
 """directories and data info"""
-data_dir='/home/miles/Desktop/Python/data/float_tracker/switch/cycle/'
+data_dir='switch/cycle/'
 file_list=sorted(glob.glob(data_dir+'COMs/*.out'), key=os.path.getmtime)
 
 
