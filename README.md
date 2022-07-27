@@ -9,6 +9,7 @@ profilometry > `rawdata-to-meshgrid.ipynb` was used to convert raw surface profi
 
 force-displacement > `Rough_CapillaryForce_MajorAxis_analysis_v2_github.ipynb` was used to process and plot data from a custom-built force measurement apparatus. 
 
+`FemtoTool-Analysis.ipynb` was used to analyze the elastic modulus of the fiber optic used in the capillary tweezer force measurements.
 
 
 
